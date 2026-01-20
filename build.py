@@ -113,6 +113,8 @@ def main():
                     shutil.rmtree(dst)
                 shutil.copytree(src, dst)
 
+    FONT_LINK = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">'
+
     post_tpl = load_tpl("post.html")
     index_tpl = load_tpl("index.html")
     tags_tpl = load_tpl("tags.html")
@@ -120,8 +122,18 @@ def main():
     about_tpl = load_tpl("about.html")
     tag_detail_tpl = load_tpl("tag-detail.html")
     search_tpl = load_tpl("search.html")
+    tree_tpl = load_tpl("tree.html")
     base_style = load_tpl("base-style.html")
     footer_html = load_tpl("footer.html")
+
+    post_tpl = post_tpl.replace('</head>', FONT_LINK + '</head>')
+    index_tpl = index_tpl.replace('</head>', FONT_LINK + '</head>')
+    tags_tpl = tags_tpl.replace('</head>', FONT_LINK + '</head>')
+    friends_tpl = friends_tpl.replace('</head>', FONT_LINK + '</head>')
+    about_tpl = about_tpl.replace('</head>', FONT_LINK + '</head>')
+    tag_detail_tpl = tag_detail_tpl.replace('</head>', FONT_LINK + '</head>')
+    search_tpl = search_tpl.replace('</head>', FONT_LINK + '</head>')
+    tree_tpl = tree_tpl.replace('</head>', FONT_LINK + '</head>')
     
     nav_html = '''<nav>
   <a href="/">home</a>
@@ -168,6 +180,7 @@ def main():
             .replace("{{date}}", data["date"])
             .replace("{{tags}}", tags_html)
             .replace("{{content}}", processed_body)
+            .replace("{{footer}}", footer_html)
         )
 
         write(os.path.join(DIST_DIR, out_path), page)
@@ -198,7 +211,10 @@ def main():
 
     write(
         os.path.join(DIST_DIR, "index.html"),
-        index_tpl.replace("{{posts}}", "\n".join(items)).replace("{{nav}}", nav_html)
+        index_tpl
+        .replace("{{posts}}", "\n".join(items))
+        .replace("{{nav}}", nav_html)
+        .replace("{{footer}}", footer_html)
     )
 
     # ---------- tags index page ----------
@@ -213,6 +229,7 @@ def main():
         .replace("{{base_style}}", base_style)
         .replace("{{nav}}", nav_html)
         .replace("{{tags_list}}", ''.join(tags_items))
+        .replace("{{footer}}", footer_html)
     )
     write(os.path.join(DIST_DIR, "tags", "index.html"), tags_page)
 
@@ -234,6 +251,7 @@ def main():
         .replace("{{base_style}}", base_style)
         .replace("{{nav}}", nav_html)
         .replace("{{friends_list}}", friends_list_html)
+        .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "friends"), exist_ok=True)
     write(os.path.join(DIST_DIR, "friends", "index.html"), friends_page)
@@ -255,6 +273,7 @@ def main():
         .replace("{{base_style}}", base_style)
         .replace("{{nav}}", nav_html)
         .replace("{{content}}", about_content_html)
+        .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "about"), exist_ok=True)
     write(os.path.join(DIST_DIR, "about", "index.html"), about_page)
@@ -267,6 +286,7 @@ def main():
         .replace("{{base_style}}", base_style)
         .replace("{{nav}}", nav_html)
         .replace("{{posts_json_data}}", posts_json)
+        .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "search"), exist_ok=True)
     write(os.path.join(DIST_DIR, "search", "index.html"), search_page)
@@ -284,16 +304,14 @@ def main():
             .replace("{{site_title}}", SITE_TITLE)
             .replace("{{base_style}}", base_style)
             .replace("{{nav}}", nav_html)
-            .replace("{{posts_list}}", li)
-        )
+        .replace("{{posts_list}}", li)
+        .replace("{{footer}}", footer_html)
+    )
 
         os.makedirs(os.path.join(DIST_DIR, "tags", tag), exist_ok=True)
         write(os.path.join(DIST_DIR, "tags", tag, "index.html"), tag_page)
 
     # ---------- tree page ----------
-    tree_tpl = load_tpl("tree.html")
-    
-    # 构建树形结构
     from collections import defaultdict
     tree_structure = defaultdict(lambda: defaultdict(list))
     
@@ -304,7 +322,6 @@ def main():
             month = date_parts[1]
             tree_structure[year][month].append(p)
     
-    # 生成树形文本
     tree_lines = ["posts/"]
     years = sorted(tree_structure.keys(), reverse=True)
     
@@ -329,12 +346,15 @@ def main():
     
     tree_content = "\n".join(tree_lines)
     
+    tree_content_html = f'<div class="tree-content">{tree_content}</div>'
+    
     tree_page = (
         tree_tpl
         .replace("{{site_title}}", SITE_TITLE)
         .replace("{{base_style}}", base_style)
         .replace("{{nav}}", nav_html)
-        .replace("{{tree_content}}", tree_content)
+        .replace("{{tree_content}}", tree_content_html)
+        .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "tree"), exist_ok=True)
     write(os.path.join(DIST_DIR, "tree", "index.html"), tree_page)
@@ -367,16 +387,13 @@ def main():
     # ---------- Sitemap ----------
     urls = []
     
-    # Static pages (directories)
     static_paths = ["", "tags/", "friends/", "about/", "search/", "tree/"]
     for path in static_paths:
         urls.append(f"<url><loc>{SITE_URL}/{path}</loc></url>")
 
-    # Posts
     for p in posts:
         urls.append(f"<url><loc>{SITE_URL}/{p['file']}</loc></url>")
 
-    # Tag detail pages
     for tag in tags_map.keys():
         urls.append(f"<url><loc>{SITE_URL}/tags/{tag}/</loc></url>")
 

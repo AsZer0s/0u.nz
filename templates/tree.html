@@ -5,21 +5,28 @@
 <title>Tree - {{site_title}}</title>
 {{base_style}}
 <style>
-.tree-container{font-family:'Courier New',monospace;font-size:0.9rem;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;overflow-x:auto;margin:1.5em 0;}
-.tree-container a{color:var(--link);text-decoration:none;}
-.tree-container a:hover{color:var(--link-hover);}
+.tree-content {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+.tree-content a {
+  color: var(--link);
+  text-decoration: none;
+}
+.tree-content a:hover {
+  color: var(--link-hover);
+}
 </style>
 </head>
 <body>
-<p><a href="/">← index</a></p>
-<h1>Archive Tree</h1>
-<div class="tree-container">
+<h1>0u</h1>
+{{nav}}
 {{tree_content}}
-</div>
-<hr>
-<p><a href="/">← index</a></p>
-<footer>
-<img src="/0unz.png" alt="0u logo" class="footer-logo">
-</footer>
+{{footer}}
 </body>
 </html>
