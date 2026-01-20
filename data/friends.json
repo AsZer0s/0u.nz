@@ -1,12 +1,20 @@
 {
-    "friends": [
-        {
-            "name": "0u",
-            "url": "https://0u.nz"
-        },
-        {
-            "name": "0u.nz",
-            "url": "https://0u.nz"
-        }
-    ]
+	"friends": [
+		{
+			"name": "Randall",
+			"url": "https://blog.randall.vip/"
+		},
+		{
+			"name": "炊烟",
+			"url": "https://blog.icysn.com/"
+		},
+		{
+			"name": "Asonlino",
+			"url": "https://b.cricloud.top/"
+		},
+		{
+			"name": "鮦峃㗽翳",
+			"url": "https://blog.xylyra.com/"
+		}
+	]
 }

@@ -99,6 +99,19 @@ def process_external_links(html_str):
 def main():
     os.makedirs(DIST_DIR, exist_ok=True)
     os.makedirs(os.path.join(DIST_DIR, "tags"), exist_ok=True)
+    
+    import shutil
+    build_folder = "build"
+    if os.path.exists(build_folder):
+        for item in os.listdir(build_folder):
+            src = os.path.join(build_folder, item)
+            dst = os.path.join(DIST_DIR, item)
+            if os.path.isfile(src):
+                shutil.copy2(src, dst)
+            elif os.path.isdir(src):
+                if os.path.exists(dst):
+                    shutil.rmtree(dst)
+                shutil.copytree(src, dst)
 
     post_tpl = load_tpl("post.html")
     index_tpl = load_tpl("index.html")
@@ -108,6 +121,7 @@ def main():
     tag_detail_tpl = load_tpl("tag-detail.html")
     search_tpl = load_tpl("search.html")
     base_style = load_tpl("base-style.html")
+    footer_html = load_tpl("footer.html")
     
     nav_html = '''<nav>
   <a href="/">home</a>

@@ -24,6 +24,9 @@ h1{font-size:1.2rem;font-weight:500;margin-bottom:12px;}
 h2{font-size:1.1rem;font-weight:500;margin:2rem 0 1rem;color:var(--fg);}
 h3{font-size:1rem;font-weight:500;margin:1.5rem 0 0.75rem;}
 
+.site-header{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.site-logo{height:10px;width:auto;display:block;}
+
 nav{
   margin-bottom:32px;
   font-size:0.9rem;
@@ -137,5 +140,24 @@ article ul,article ol{
 
 article li{
   margin:0.5em 0;
+}
+
+footer{
+  margin-top:3rem;
+  padding-top:2rem;
+  border-top:1px solid var(--border);
+  text-align:center;
+}
+
+.footer-logo{
+  height:32px;
+  width:auto;
+  display:inline-block;
+  opacity:0.6;
+  transition:opacity 0.3s;
+}
+
+.footer-logo:hover{
+  opacity:1;
 }
 </style>
