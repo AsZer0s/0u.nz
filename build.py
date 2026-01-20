@@ -2,6 +2,7 @@ import os
 import markdown
 import html
 import json
+import re # For minification
 
 POSTS_DIR = "posts"
 DIST_DIR = "dist"
@@ -24,6 +25,18 @@ def write(path, content):
 
 def load_tpl(name):
     return read(os.path.join(TPL_DIR, name))
+
+def minify_css(css_content):
+    css_content = re.sub(r'\s+', ' ', css_content) # Replace multiple spaces with a single space
+    css_content = re.sub(r'/\*.*?\*/', '', css_content) # Remove comments
+    css_content = re.sub(r';\s*\}', '}', css_content) # Remove semicolon before closing brace
+    css_content = re.sub(r'\s*([{}|:;,])\s*', r'\1', css_content) # Remove spaces around selectors, properties, etc.
+    return css_content.strip()
+
+def minify_html(html_content):
+    html_content = re.sub(r'>\s+<', '><', html_content) # Remove spaces between tags
+    html_content = re.sub(r'\s+', ' ', html_content) # Replace multiple spaces with a single space
+    return html_content.strip()
 
 # ---------------- parse markdown ----------------
 
@@ -123,7 +136,7 @@ def main():
     tag_detail_tpl = load_tpl("tag-detail.html")
     search_tpl = load_tpl("search.html")
     tree_tpl = load_tpl("tree.html")
-    base_style = load_tpl("base-style.html")
+    base_style = minify_css(load_tpl("base-style.html"))
     footer_html = load_tpl("footer.html")
 
     post_tpl = post_tpl.replace('</head>', FONT_LINK + '</head>')
@@ -183,7 +196,7 @@ def main():
             .replace("{{footer}}", footer_html)
         )
 
-        write(os.path.join(DIST_DIR, out_path), page)
+        write(os.path.join(DIST_DIR, out_path), minify_html(page))
 
         post = {
             "title": data["title"],
@@ -211,10 +224,10 @@ def main():
 
     write(
         os.path.join(DIST_DIR, "index.html"),
-        index_tpl
+        minify_html(index_tpl
         .replace("{{posts}}", "\n".join(items))
         .replace("{{nav}}", nav_html)
-        .replace("{{footer}}", footer_html)
+        .replace("{{footer}}", footer_html))
     )
 
     # ---------- tags index page ----------
@@ -231,7 +244,7 @@ def main():
         .replace("{{tags_list}}", ''.join(tags_items))
         .replace("{{footer}}", footer_html)
     )
-    write(os.path.join(DIST_DIR, "tags", "index.html"), tags_page)
+    write(os.path.join(DIST_DIR, "tags", "index.html"), minify_html(tags_page))
 
     # ---------- friends page ----------
     friends_list_html = ""
@@ -254,7 +267,7 @@ def main():
         .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "friends"), exist_ok=True)
-    write(os.path.join(DIST_DIR, "friends", "index.html"), friends_page)
+    write(os.path.join(DIST_DIR, "friends", "index.html"), minify_html(friends_page))
 
     # ---------- about page ----------
     about_content_html = ""
@@ -276,7 +289,7 @@ def main():
         .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "about"), exist_ok=True)
-    write(os.path.join(DIST_DIR, "about", "index.html"), about_page)
+    write(os.path.join(DIST_DIR, "about", "index.html"), minify_html(about_page))
 
     # ---------- search page ----------
     posts_json = json.dumps(posts, ensure_ascii=False)
@@ -289,7 +302,7 @@ def main():
         .replace("{{footer}}", footer_html)
     )
     os.makedirs(os.path.join(DIST_DIR, "search"), exist_ok=True)
-    write(os.path.join(DIST_DIR, "search", "index.html"), search_page)
+    write(os.path.join(DIST_DIR, "search", "index.html"), minify_html(search_page))
 
     # ---------- tag detail pages ----------
     for tag, plist in tags_map.items():
@@ -309,7 +322,7 @@ def main():
     )
 
         os.makedirs(os.path.join(DIST_DIR, "tags", tag), exist_ok=True)
-        write(os.path.join(DIST_DIR, "tags", tag, "index.html"), tag_page)
+        write(os.path.join(DIST_DIR, "tags", tag, "index.html"), minify_html(tag_page))
 
     # ---------- tree page ----------
     from collections import defaultdict
