@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>search · {{site_title}}</title>
+{{base_style}}
+<style>
+.search-container{
+  margin-bottom:32px;
+}
+.search-input{
+  width:100%;
+  padding:10px 12px;
+  background:var(--code-bg);
+  border:1px solid var(--code-border);
+  border-radius:6px;
+  color:var(--fg);
+  font-size:0.95rem;
+  font-family:system-ui;
+}
+.search-input:focus{
+  outline:none;
+  border-color:var(--link);
+}
+.search-results{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.search-results li{
+  margin:0.8rem 0;
+}
+.no-results{
+  color:var(--muted);
+  text-align:center;
+  padding:2rem 0;
+}
+.search-info{
+  color:var(--muted);
+  font-size:0.9rem;
+  margin-bottom:1rem;
+}
+.search-preview{
+  color:var(--muted);
+  font-size:0.85rem;
+  margin-top:4px;
+  line-height:1.5;
+}
+</style>
+</head>
+<body>
+<h1>0u</h1>
+{{nav}}
+<div class="search-container">
+  <input type="text" class="search-input" id="searchInput" placeholder="Search posts by title, date, or content..." autofocus>
+</div>
+<div class="search-info" id="searchInfo"></div>
+<ul class="search-results" id="searchResults"></ul>
+
+<script>
+const postsData = {{posts_json_data}};
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchInfo = document.getElementById('searchInfo');
+
+function normalizeText(text) {
+  return text.toLowerCase().trim();
+}
+
+function highlightMatch(text, query) {
+  const index = normalizeText(text).indexOf(normalizeText(query));
+  if (index === -1) return text;
+  const before = text.substring(0, index);
+  const match = text.substring(index, index + query.length);
+  const after = text.substring(index + query.length);
+  return before + '<mark style="background:var(--link);color:var(--bg);padding:2px 4px;border-radius:2px;">' + match + '</mark>' + after;
+}
+
+function getPreview(text, query, length = 80) {
+  const normalizedText = normalizeText(text);
+  const normalizedQuery = normalizeText(query);
+  const index = normalizedText.indexOf(normalizedQuery);
+  
+  if (index === -1) return '';
+  
+  const start = Math.max(0, index - 20);
+  const end = Math.min(text.length, start + length);
+  
+  let preview = text.substring(start, end);
+  if (start > 0) preview = '...' + preview;
+  if (end < text.length) preview = preview + '...';
+  
+  return highlightMatch(preview, query);
+}
+
+function searchPosts(query) {
+  if (!query) {
+    searchResults.innerHTML = '';
+    searchInfo.textContent = '';
+    return;
+  }
+
+  const normalizedQuery = normalizeText(query);
+  const results = postsData.filter(post => {
+    return normalizeText(post.title).includes(normalizedQuery) ||
+           normalizeText(post.date).includes(normalizedQuery) ||
+           normalizeText(post.content).includes(normalizedQuery);
+  });
+
+  if (results.length === 0) {
+    searchInfo.textContent = 'No results found';
+    searchResults.innerHTML = '<li class="no-results">Try different keywords</li>';
+    return;
+  }
+
+  searchInfo.textContent = `Found ${results.length} post${results.length > 1 ? 's' : ''}`;
+  
+  searchResults.innerHTML = results.map(post => {
+    const titleHtml = highlightMatch(post.title, query);
+    const dateHtml = highlightMatch(post.date, query);
+    
+    let preview = '';
+    if (normalizeText(post.content).includes(normalizedQuery)) {
+      preview = `<div class="search-preview">${getPreview(post.content, query, 100)}</div>`;
+    }
+    
+    return `<li><a href="/${post.file}">${titleHtml}</a> - <span class="post-date">${dateHtml}</span>${preview}</li>`;
+  }).join('');
+}
+
+let debounceTimer;
+searchInput.addEventListener('input', (e) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    searchPosts(e.target.value);
+  }, 300);
+});
+
+const urlParams = new URLSearchParams(window.location.search);
+const initialQuery = urlParams.get('q');
+if (initialQuery) {
+  searchInput.value = initialQuery;
+  searchPosts(initialQuery);
+}
+</script>
+</body>
+</html>

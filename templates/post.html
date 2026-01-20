@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{title}}</title>
+{{base_style}}
+<style>
+.post-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:24px;flex-wrap:wrap;}.post-tags{display:flex;gap:8px;flex-wrap:wrap;}.tag{font-size:12px;color:var(--muted);text-decoration:none;}.tag::before{content:"#";opacity:.4;}.tag:hover{color:var(--fg);}
+</style>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true,
+    processEnvironments: true
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+<p><a href="/">← index</a></p>
+<h1>{{title}}</h1>
+<div class="post-meta">
+  <span>{{date}}</span>
+  <div class="post-tags">
+    {{tags}}
+  </div>
+</div>
+<article>
+{{content}}
+</article>
+<hr>
+<p><a href="/">← index</a></p>
+</body>
+</html>
