@@ -364,6 +364,29 @@ def main():
 
     write(os.path.join(DIST_DIR, "rss.xml"), rss)
 
+    # ---------- Sitemap ----------
+    urls = []
+    
+    # Static pages (directories)
+    static_paths = ["", "tags/", "friends/", "about/", "search/", "tree/"]
+    for path in static_paths:
+        urls.append(f"<url><loc>{SITE_URL}/{path}</loc></url>")
+
+    # Posts
+    for p in posts:
+        urls.append(f"<url><loc>{SITE_URL}/{p['file']}</loc></url>")
+
+    # Tag detail pages
+    for tag in tags_map.keys():
+        urls.append(f"<url><loc>{SITE_URL}/tags/{tag}/</loc></url>")
+
+    sitemap = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{''.join(urls)}
+</urlset>
+"""
+    write(os.path.join(DIST_DIR, "sitemap.xml"), sitemap)
+
 
 if __name__ == "__main__":
     main()
